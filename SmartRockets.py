@@ -134,9 +134,10 @@ def main():
 
         mating_pool.clear()
         for rocket in rockets:
-            rocket.fitness *= scaler
-            for _ in range(int(rocket.fitness * 1000)):
-                mating_pool.append(rocket.original_dna)
+            if rocket.active or rocket.successful:
+                rocket.fitness *= scaler
+                for _ in range(int(rocket.fitness * 1000)):
+                    mating_pool.append(rocket.original_dna)
         random.shuffle(mating_pool)
         print(f'Mating pool size: {len(mating_pool)}')
 
