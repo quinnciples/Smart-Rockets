@@ -37,8 +37,13 @@ def main():
     mating_pool = []
     fitness = []
 
-    obstacle = pygame.Rect(175, 250, 350, 30)
+    # obstacle = pygame.Rect(175, 250, 350, 30)
+    obstacle = pygame.Rect(175, 350, 150, 20)
     obstacles.append(obstacle)
+
+    obstacle = pygame.Rect(250, 200, 250, 20)
+    obstacles.append(obstacle)
+
     target = pygame.Rect(*TARGET, 20, 20)
     targets.append(target)
 
@@ -132,14 +137,16 @@ def main():
         print(f'Max fitness: {max_fitness}')
         scaler = 1 / max_fitness
 
-        mating_pool.clear()
-        for rocket in rockets:
-            if rocket.active or rocket.successful:
-                rocket.fitness *= scaler
-                for _ in range(int(rocket.fitness * 1000)):
-                    mating_pool.append(rocket.original_dna)
-        random.shuffle(mating_pool)
-        print(f'Mating pool size: {len(mating_pool)}')
+        # mating_pool.clear()
+        # for rocket in rockets:
+        #     if rocket.active or rocket.successful:
+        #         rocket.fitness *= scaler
+        #         for _ in range(int(rocket.fitness * 1000)):
+        #             mating_pool.append(rocket.original_dna)
+        # random.shuffle(mating_pool)
+        # print(f'Mating pool size: {len(mating_pool)}')
+
+        mating_pool_with_weights = [(idx, rocket.fitness) for idx, rocket in enumerate(rockets) if rocket.active or rocket.successful]
 
         def crossover(mother_dna, father_dna):
             new_dna = []
@@ -148,24 +155,41 @@ def main():
             # new_dna = dna_sequence[split_point:split_point + len(mother_dna)]
             for gene in zip(mother_dna, father_dna):
                 if random.random() < 0.5:
-                    # new_dna.append(gene[0])  # Mother DNA
-                    new_dna = mother_dna[0:split_point] + father_dna[split_point:]
+                    new_dna.append(gene[0])  # Mother DNA
+                    # new_dna = mother_dna[0:split_point] + father_dna[split_point:]
                 else:
-                    # new_dna.append(gene[1])  # Mother DNA
-                    new_dna = father_dna[0:split_point] + mother_dna[split_point:]
+                    new_dna.append(gene[1])  # Mother DNA
+                    # new_dna = father_dna[0:split_point] + mother_dna[split_point:]
             for i in range(len(new_dna)):
                 if random.random() <= MUTATION_RATE:
                     new_dna[i] = Q_Vector2D.random()
             assert(len(new_dna) == len(mother_dna) == len(father_dna))
             return new_dna
 
-        rockets.clear()
+        def weighted_choice(choices):
+            total = sum(w for c, w in choices)
+            r = random.uniform(0, total)
+            upto = 0
+            for c, w in choices:
+                if upto + w >= r:
+                    return c
+                upto += w
+            assert False, "Shouldn't get here"
+
+        # rockets.clear()
+        new_rockets = []
         for _ in range(NUM_ROCKETS):
-            mother_dna = mating_pool.pop()
-            father_dna = mating_pool.pop()
+            # mother_dna = mating_pool.pop()
+            # father_dna = mating_pool.pop()
+            mother_dna = rockets[weighted_choice(mating_pool_with_weights)].original_dna
+            father_dna = rockets[weighted_choice(mating_pool_with_weights)].original_dna
             DNA = crossover(mother_dna=mother_dna, father_dna=father_dna)
             rocket = Rocket(x=WIDTH / 2, y=HEIGHT / 8 * 7, dna=DNA)
-            rockets.append(rocket)
+            new_rockets.append(rocket)
+        rockets = None
+        rockets = [rocket for rocket in new_rockets]
+        new_rockets.clear()
+        new_rockets = None
 
     pygame.quit()
 
