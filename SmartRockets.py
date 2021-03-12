@@ -8,21 +8,16 @@ sys.path.append("C:\\users\\alexa\\Documents\\Github\\QFunctions")
 from Q_Functions import Q_Vector2D
 from rocket import Rocket
 
+# define constants
 PI = math.pi
 TWO_PI = 2.0 * math.pi
-
-# define constants
-WIDTH = 700
+WIDTH = 800
 HEIGHT = 500
 FPS = 999
-
-ROCKET_WIDTH = 10
-ROCKET_LENGTH = 30
-DNA_LENGTH = 900
-MUTATION_RATE = 0.01
-NUM_ROCKETS = 200
+DNA_LENGTH = 1000
+MUTATION_RATE = 0.03
+NUM_ROCKETS = 250
 TARGET = (WIDTH // 2 - 10, int(HEIGHT * 0.1))
-
 
 # define colors
 BLACK = (0, 0, 0)
@@ -35,29 +30,17 @@ def main():
     rockets = []
     obstacles = []
     targets = []
-    mating_pool = []
-    fitness = []
+    new_rockets = []
 
-    # obstacle = pygame.Rect(175, 250, 350, 30)
-    obstacle = pygame.Rect(100, 400, 200, 20)
-    obstacles.append(obstacle)
-    obstacle = pygame.Rect(400, 400, 200, 20)
-    obstacles.append(obstacle)
-
-    obstacle = pygame.Rect(300, 300, 100, 20)
-    obstacles.append(obstacle)
-
-    obstacle = pygame.Rect(50, 150, 200, 20)
-    obstacles.append(obstacle)
-    obstacle = pygame.Rect(450, 150, 200, 20)
+    obstacle = pygame.Rect(200, 250, 600, 20)
     obstacles.append(obstacle)
 
     target = pygame.Rect(*TARGET, 20, 20)
     targets.append(target)
 
     for _ in range(NUM_ROCKETS):
-        DNA = [Q_Vector2D.random() for _ in range(DNA_LENGTH)]
-        rocket = Rocket(x=WIDTH / 2, y=HEIGHT / 8 * 7, dna=DNA)
+        dna = [Q_Vector2D.random() for _ in range(DNA_LENGTH)]
+        rocket = Rocket(x=WIDTH / 2, y=HEIGHT / 8 * 7, dna=dna)
         rockets.append(rocket)
 
     # initialize pygame and create screen
@@ -67,17 +50,16 @@ def main():
     CLOCK = pygame.time.Clock()
 
     # define a surface (RECTANGLE)
-    ROCKET_TEMPLATE = pygame.Surface((ROCKET_LENGTH, ROCKET_WIDTH))
+    ROCKET_TEMPLATE = pygame.Surface((Rocket.LENGTH, Rocket.WIDTH))
     # for making transparent background while rotating an image
     ROCKET_TEMPLATE.set_colorkey(BLACK)
     # fill the rectangle / surface with green color
-    ROCKET_TEMPLATE.fill(WHITE)
+    ROCKET_TEMPLATE.fill(Rocket.COLOR)
 
-    # keep rotating the rectangle until running is set to False
     running = True
 
     while running:
-        NUM_TICKS = 900
+        NUM_TICKS = 1000
 
         while running and NUM_TICKS:
             NUM_TICKS -= 1
@@ -178,28 +160,39 @@ def main():
 
         def weighted_choice(choices):
             total = sum(w for c, w in choices)
-            r = random.uniform(0, total)
+            r1 = random.uniform(0, total)
+            r2 = r1
+            while r2 == r1:
+                r2 = random.uniform(0, total)
+
             upto = 0
             for c, w in choices:
-                if upto + w >= r:
-                    return c
+                if upto + w >= r1:
+                    choice1 = c
+                    break
                 upto += w
+
+            upto = 0
+            for c, w in choices:
+                if upto + w >= r2:
+                    choice2 = c
+                    return choice1, choice2
+                    break
+                upto += w
+
             assert False, "Shouldn't get here"
 
-        # rockets.clear()
-        new_rockets = []
+        new_rockets.clear()
         for _ in range(NUM_ROCKETS):
-            # mother_dna = mating_pool.pop()
-            # father_dna = mating_pool.pop()
-            mother_dna = rockets[weighted_choice(mating_pool_with_weights)].original_dna
-            father_dna = rockets[weighted_choice(mating_pool_with_weights)].original_dna
+            mother_choice, father_choice = weighted_choice(mating_pool_with_weights)
+            mother_dna = rockets[mother_choice].original_dna
+            father_dna = rockets[father_choice].original_dna
             DNA = crossover(mother_dna=mother_dna, father_dna=father_dna)
             rocket = Rocket(x=WIDTH / 2, y=HEIGHT / 8 * 7, dna=DNA)
             new_rockets.append(rocket)
         rockets = None
         rockets = [rocket for rocket in new_rockets]
         new_rockets.clear()
-        new_rockets = None
 
     pygame.quit()
 

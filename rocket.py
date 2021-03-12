@@ -2,10 +2,13 @@ import math
 import sys
 sys.path.append("C:\\users\\alexa\\Documents\\Github\\QFunctions")
 from Q_Functions import Q_Vector2D
-# from Q_Functions import Q_map
 
 
 class Rocket:
+    LENGTH = 30
+    WIDTH = 10
+    COLOR = (255, 255, 255)
+
     def __init__(self, x, y, dna: list):
         self.velocity = Q_Vector2D(angle=0, magnitude=0)
         self.x = x
