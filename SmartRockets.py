@@ -18,10 +18,11 @@ FPS = 999
 
 ROCKET_WIDTH = 10
 ROCKET_LENGTH = 30
-DNA_LENGTH = 600
-MUTATION_RATE = 0.05
-NUM_ROCKETS = 100
-TARGET = (WIDTH // 2, int(HEIGHT * 0.1))
+DNA_LENGTH = 900
+MUTATION_RATE = 0.01
+NUM_ROCKETS = 200
+TARGET = (WIDTH // 2 - 10, int(HEIGHT * 0.1))
+
 
 # define colors
 BLACK = (0, 0, 0)
@@ -38,10 +39,17 @@ def main():
     fitness = []
 
     # obstacle = pygame.Rect(175, 250, 350, 30)
-    obstacle = pygame.Rect(175, 350, 150, 20)
+    obstacle = pygame.Rect(100, 400, 200, 20)
+    obstacles.append(obstacle)
+    obstacle = pygame.Rect(400, 400, 200, 20)
     obstacles.append(obstacle)
 
-    obstacle = pygame.Rect(250, 200, 250, 20)
+    obstacle = pygame.Rect(300, 300, 100, 20)
+    obstacles.append(obstacle)
+
+    obstacle = pygame.Rect(50, 150, 200, 20)
+    obstacles.append(obstacle)
+    obstacle = pygame.Rect(450, 150, 200, 20)
     obstacles.append(obstacle)
 
     target = pygame.Rect(*TARGET, 20, 20)
@@ -69,7 +77,7 @@ def main():
     running = True
 
     while running:
-        NUM_TICKS = 1000
+        NUM_TICKS = 900
 
         while running and NUM_TICKS:
             NUM_TICKS -= 1
@@ -129,13 +137,15 @@ def main():
             # flipping the display after drawing everything
             pygame.display.flip()
 
-        fitness.clear()
+        # fitness.clear()
+        max_fitness = 0
         for rocket in rockets:
             rocket.calculate_fitness(target=TARGET)
-            fitness.append(rocket.fitness)
-        max_fitness = max(fitness)
+            # fitness.append(rocket.fitness)
+            max_fitness = max(rocket.fitness, max_fitness)
+        # max_fitness = max(fitness)
         print(f'Max fitness: {max_fitness}')
-        scaler = 1 / max_fitness
+        # scaler = 1 / max_fitness
 
         # mating_pool.clear()
         # for rocket in rockets:

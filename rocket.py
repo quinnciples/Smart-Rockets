@@ -39,7 +39,8 @@ class Rocket:
 
     def calculate_fitness(self, target):
         if self.active or self.successful:
-            self.fitness = 1 / (math.sqrt(((target[1] - self.y) ** 2) + ((target[0] - self.x) ** 2)) + 0.0001)
+            # self.fitness = 1 / (math.sqrt(((target[1] - self.y) ** 2) + ((target[0] - self.x) ** 2)) + 0.0001)
+            self.fitness = 1 / (((target[1] - self.y) ** 2) + ((target[0] - self.x) ** 2) + 0.0001)
         else:
             self.fitness = 0
 
