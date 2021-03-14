@@ -6,6 +6,7 @@ import time
 random.seed(time.perf_counter())
 sys.path.append("C:\\users\\alexa\\Documents\\Github\\QFunctions")
 from Q_Functions import Q_Vector2D
+from Q_Functions import Q_weighted_choice3 as weighted_choice
 from rocket import Rocket
 
 # define constants
@@ -138,7 +139,8 @@ def main():
         # random.shuffle(mating_pool)
         # print(f'Mating pool size: {len(mating_pool)}')
 
-        mating_pool_with_weights = [(idx, rocket.fitness) for idx, rocket in enumerate(rockets) if rocket.active or rocket.successful]
+        mating_pool = [idx for idx, rocket in enumerate(rockets) if rocket.active or rocket.successful]
+        mating_weights = [rocket.fitness for idx, rocket in enumerate(rockets) if rocket.active or rocket.successful]
 
         def crossover(mother_dna, father_dna):
             new_dna = []
@@ -158,33 +160,9 @@ def main():
             assert(len(new_dna) == len(mother_dna) == len(father_dna))
             return new_dna
 
-        def weighted_choice(choices):
-            total = sum(w for c, w in choices)
-            r1 = random.uniform(0, total)
-            r2 = r1
-            while r2 == r1:
-                r2 = random.uniform(0, total)
-
-            upto = 0
-            for c, w in choices:
-                if upto + w >= r1:
-                    choice1 = c
-                    break
-                upto += w
-
-            upto = 0
-            for c, w in choices:
-                if upto + w >= r2:
-                    choice2 = c
-                    return choice1, choice2
-                    break
-                upto += w
-
-            assert False, "Shouldn't get here"
-
         new_rockets.clear()
         for _ in range(NUM_ROCKETS):
-            mother_choice, father_choice = weighted_choice(mating_pool_with_weights)
+            mother_choice, father_choice = weighted_choice(list_of_choices=mating_pool, list_of_weights=mating_weights, number_of_choices=2, replacement=False)
             mother_dna = rockets[mother_choice].original_dna
             father_dna = rockets[father_choice].original_dna
             DNA = crossover(mother_dna=mother_dna, father_dna=father_dna)
