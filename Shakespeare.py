@@ -1,14 +1,22 @@
-import pygame
-import math
 import sys
 import random
 import time
 random.seed(time.perf_counter())
 sys.path.append("C:\\users\\alexa\\Documents\\Github\\QFunctions")
-from Q_Functions import Q_Vector2D
 from Q_Functions import Q_weighted_choice3 as weighted_choice
 import string
-
+import logging
+from mariadb_handler import MariaDBHandler
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s.%(msecs)03d - %(levelname)8s - %(filename)s - Function: %(funcName)20s - Line: %(lineno)4s // %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    handlers=[
+                        logging.FileHandler(filename='log.txt'),
+                        logging.StreamHandler(),
+                        MariaDBHandler()
+                    ])
+# logging.disable(level=logging.CRITICAL)
+logging.info('Loaded.')
 from difflib import ndiff
 
 
@@ -52,7 +60,7 @@ class Monkey:
 
 def main():
 
-    NUM_MONKEYS = 500
+    NUM_MONKEYS = 1000
     MUTATION_RATE = 0.005
     TARGET = 'To be, or not to be? That is the question.'
     ITERATIONS = 0
